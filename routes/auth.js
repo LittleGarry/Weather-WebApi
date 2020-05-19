@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 
 router.post('/register', [
   check('email', 'Your email is not valid').isEmail(),
-  check('password').isLength({ min: 6 })
+  check('password', 'Invalid password').isLength({ min: 6 }),
+  check('name', 'Invalid name').isLength({ min: 1})
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -20,6 +21,7 @@ router.post('/register', [
   const hashPassword = await bcrypt.hash(req.body.password, salt);
 
   const user = new User({
+    name: req.body.name,
     email: req.body.email,
     password: hashPassword,
   });
@@ -35,8 +37,8 @@ router.post('/register', [
 
 router.post('/login', [
     check('email', 'Your email is not valid').isEmail(),
-    check('password').isLength({ min: 6 })
-], async (req, res) => {
+    check('password', 'Invalid password').isLength({ min: 6 }),
+  ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -52,7 +54,7 @@ router.post('/login', [
     const user = { _id: userId };
     
     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-    res.json({accessToken: accessToken});
+    res.json({name: userExist.name, accessToken: accessToken});
 });
 
 module.exports = router;
