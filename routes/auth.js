@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 router.post('/register', [
   check('email', 'Your email is not valid').isEmail(),
   check('password', 'Invalid password').isLength({ min: 6 }),
-  check('name', 'Invalid name').isLength({ min: 1})
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -24,6 +23,7 @@ router.post('/register', [
     name: req.body.name,
     email: req.body.email,
     password: hashPassword,
+    cities: []
   });
 
   try {
@@ -54,7 +54,7 @@ router.post('/login', [
     const user = { _id: userId };
     
     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-    res.json({name: userExist.name, accessToken: accessToken});
+    await res.json({name: userExist.name, accessToken: accessToken});
 });
 
 module.exports = router;
